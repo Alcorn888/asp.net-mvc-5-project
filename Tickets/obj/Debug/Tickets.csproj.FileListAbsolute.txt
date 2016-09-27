@@ -45,4 +45,3 @@ C:\inetpub\wwwroot\Tickets\Tickets\bin\ru\Microsoft.AspNet.Identity.Owin.resourc
 C:\inetpub\wwwroot\Tickets\Tickets\bin\ru\Microsoft.AspNet.Identity.EntityFramework.resources.dll
 C:\inetpub\wwwroot\Tickets\Tickets\obj\Debug\Tickets.dll
 C:\inetpub\wwwroot\Tickets\Tickets\obj\Debug\Tickets.pdb
-C:\inetpub\wwwroot\Tickets\Tickets\obj\Debug\Tickets.csprojResolveAssemblyReference.cache
