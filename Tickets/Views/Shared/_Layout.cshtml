@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets Atoin.com - @ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Tickets & Passengers", "Index", "Home", null, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Железнодорожный транспорт", "Index", "railway")</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year – пассажирские перевозки</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    <script type="text/javascript">
+        // js-валидатор не сращивает русские даты, нужно менять Globalize, но так как у нас поле с датой readonly и ограничивает ввод значений сам календарь, то просто выкинем эту валидацию, которую ставит без спроса сам mvc для всех полей с типом DateTime
+        $('.datepicker').removeAttr("data-val-date");
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+
+        <script type="text/javascript">
+
+            // подрубим клиентскую валидацию типа пассажира и его возраста
+            // вообще всё это надо загнать в js-файл, чтоб не висело в макете
+            jQuery.validator.addMethod("checkage", function (value, element, param) {
+                return checkAge();
+            });
+
+            jQuery.validator.unobtrusive.adapters.addSingleVal("checkage", "other");
+
+            function checkAge() {
+                var result = true;
+                var typePassenger = $('#TypeID').val();
+                var birthday = $('#Birthday').val();
+
+                if (typePassenger && birthday) {
+
+                    var dateArr = birthday.split(".");
+                    var date = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
+
+                    var add5Years = new Date().setFullYear(date.getFullYear() + 5, date.getMonth(), date.getDate());
+                    var add10Years = new Date().setFullYear(date.getFullYear() + 10, date.getMonth(), date.getDate());
+                    
+                    // проверим дату рождения и тип пассажира
+                    if (
+                        (typePassenger == 2 && add10Years > new Date()) // старше 10 лет
+                        ||
+                        (typePassenger == 3 && (add5Years > new Date() || add10Years < new Date())) // от 5 до 10 лет
+                        ||
+                        (typePassenger == 4 && add5Years < new Date()) // до 5 лет
+                    ) {
+                        result = false;
+                    }
+                }
+                return result;
+            }
+
+            window.ClientValidationEnabled = @Tickets.Models.Core.Settings.ClientValidationEnabled.ToString().ToLower();
+
+            // клиентская mvc-валидация отключена, делаем свою (а вообще лучше взять готовый плагин и не изобретать велосипед)
+            if (!window.ClientValidationEnabled) {
+                // форма у нас всё равно одна на сайте и в этом тестовом проекте никаких больше форм не будет, поэтому цепляемся сразу к тегу
+                $('form').submit(function() {
+                    var errors = [], el;
+
+                    // очищаем старые ошибки
+                    $(this).find('.error-text').remove();
+                    $(this).find('input,select').removeClass('error');
+                    
+                    el = $(this).find('#Name').get();
+
+                    if (!$(el).val())
+                    {
+                        errors.push({ element : el, message : 'Имя должно быть заполнено'});
+                    } else {
+                        if (!/^[а-яё -]+$/ig.test($(el).val())) {
+                            errors.push({ element : el, message : 'Имя может содержать только русские буквы, пробелы и дефисы'});
+                        }
+                    }
+
+                    el = $(this).find('#Birthday').get();
+
+                    if (!$(el).val())
+                    {
+                        errors.push({ element : el, message : 'Дата рождения должна быть заполнена'});
+                    }
+
+                    if (!checkAge()) {
+                        errors.push({ element : $(this).find('#TypeID').get(), message : 'Тип пассажира должен соответствовать его возрасту'});
+                    }
+
+                    // здесь обычно делается выезжающая из-за экрана красивая прыгающая плюшка с текстом об ошибке
+                    if (errors.length) {
+                        for (var i=0; i<errors.length; i++) {
+                            $('<span class="error-text" style="color:red;">' + errors[i].message + '</span>').insertAfter(errors[i].element);
+                            $(errors[i].element).addClass('error');
+                        }
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="TicketsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Passengers">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="TypeID" Type="Int32" Nullable="false" />
+    <Property Name="Birthday" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="Created" Type="DateTime" Nullable="false" Precision="3" />
+    <NavigationProperty Name="PassengerTypes" Relationship="Self.FK_Passenger_Types" FromRole="Passengers" ToRole="PassengerTypes" />
+  </EntityType>
+  <EntityType Name="PassengerTypes">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+    <NavigationProperty Name="Passengers" Relationship="Self.FK_Passenger_Types" FromRole="PassengerTypes" ToRole="Passengers" />
+  </EntityType>
+  <Association Name="FK_Passenger_Types">
+    <End Role="PassengerTypes" Type="Self.PassengerTypes" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="Passengers" Type="Self.Passengers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="PassengerTypes">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Passengers">
+        <PropertyRef Name="TypeID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="TicketsEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Passengers" EntityType="Self.Passengers" />
+    <EntitySet Name="PassengerTypes" EntityType="Self.PassengerTypes" />
+    <AssociationSet Name="FK_Passenger_Types" Association="Self.FK_Passenger_Types">
+      <End Role="PassengerTypes" EntitySet="PassengerTypes" />
+      <End Role="Passengers" EntitySet="Passengers" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

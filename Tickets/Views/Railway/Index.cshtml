@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = "Пассажиры на ж/д транспорте";
+}
+
+<h2>@ViewBag.Title.</h2>
+<br>
+<div>
+    <a class="btn btn-success" href="@Url.Action("info")">
+        <span class="glyphicon glyphicon-plus-sign"></span> 
+        Добавить пассажира
+    </a>
+</div>
+<br>
+<div class="list-group">
+    <a class="list-group-item" href="@Url.Action("passengers")">Список пассажиров</a>
+</div>
